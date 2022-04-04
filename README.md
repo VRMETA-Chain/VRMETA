@@ -25,4 +25,7 @@ Cross-Chain stable coin architecture of VRMETA.  1.5x peg to VRMETA.
 PIXEL: 1.5x peg
 SAGA: 1x peg
 
-# VRMETAxMatrix
+# VRMETA Native Payment SDK
+One of VRMETA's most important native applications will be the decentralized ability to buy VRMETA with credit cards or third party
+payment apps anywhere in the world, then bridge to any network.  This is to eliminate the need to go through exchanges to get on-chain; 
+users can now get on-chain directly.
