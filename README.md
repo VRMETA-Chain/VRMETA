@@ -15,6 +15,8 @@ time played, and overall total supply as follows (subject to change):
 
 REWARD = (Time played / 3_600 ) x (total individual staked / total circulating supply)
 
+Mining only occures while playing
+
 # VRMETAx721 
 Cross-Chain NFT swap and management specialized for in-game, simultaneous multi-blockchain connections.
 NFTs will be tradable in a multichain atmosphere by allocating NFTs and NFT types to a swapping pool, similar to Uniswap's ERC20 token pools.
