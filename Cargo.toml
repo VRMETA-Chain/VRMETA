@@ -2,7 +2,11 @@
 members = [
     'node',
     'runtime',
-    'timestake'
+    'timestake',
+    'metascore',
+    'Vrmetax1'
 ]
 [profile.release]
 panic = 'unwind'
+
+
