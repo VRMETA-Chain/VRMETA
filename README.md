@@ -15,7 +15,7 @@ time played, and overall total supply as follows (subject to change):
 
 REWARD = (Time played / 3_600 ) x (total individual staked / total circulating supply)
 
-Mining only occures while playing
+Mining only occurs while playing~
 
 # VRMETAx721 
 Cross-Chain NFT swap and management specialized for in-game, simultaneous multi-blockchain connections.
