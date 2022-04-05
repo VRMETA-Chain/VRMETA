@@ -10,9 +10,9 @@ var socket = io2();
  var clients = [];
 
 
-const address = '0xC570214c3A924cEaE0559710dc4B2A3DB451d111';
-const privateKey = 'a9dd7820fe5b2f5a5faf3d67955e91ecfd98e65a49411c9e653f4f36ca71c68e';
-const infuraUrl = 'https://polygon-mumbai.infura.io/v3/7f020208b8cc49ac9e3d1a15ae1909ca'; 
+const address = 'SECRET';
+const privateKey = 'SECRET';
+const infuraUrl = 'https://polygon-mumbai.infura.io/v3/SECRET'; 
 
 
 
