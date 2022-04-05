@@ -24,6 +24,7 @@ pub enum Error {
     NotForSale
 }
 
+pub type Result<T> = core::result::Result<T, Error>;
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
@@ -80,7 +81,29 @@ pub enum Error {
         
     }
 
-
+    #[ink(message)]
+    pub fn buy_new_plot(&mut self, coords: Grid) -> Result<()>  {
+        let caller: AccountId = self.env().caller();
+        let result = self.check_if_owned(coords);
+        if result == true {
+            return Err(Error::AlreadyOwned)
+        } else {
+            let mut x = coords[0][0];
+            let mut y = coords[0][1];
+            let x2 = coords[1][0];
+            let y2 = coords[1][1];
+            while y <= y2 {
+                while x <= x2 {
+                    self.is_owned.insert([x, y], &true);
+                    self.is_owner.insert([x, y], &caller);
+                    x += 1;
+                }
+                y += 1;
+            }
+         
+        }
+        Ok(())
+    }
 
         #[ink(message)]
         pub fn get_plot(&mut self, who: AccountId) -> Grid {
@@ -101,18 +124,19 @@ pub enum Error {
             let y2 = coords[1][1];
             while y <= y2 {
                 while x <= x2 {
-                    let result: bool = self.is_owned.get(&[x, y]).unwrap();
-                    if result == true {
-                        return true;
+                    
+                    let option = self.is_owned.get(&[x, y]);
+
+                    if option == Some(true) {
+                        return true
                     } 
                     else {
-                        x += 1;
+                        x += 1; 
                     }
-                    
                 }
                 y += 1;
             }
-            return false;
+            return false
         }
 
         #[ink(message)]
@@ -159,6 +183,17 @@ pub enum Error {
             let result = pixellandmap.get_plot(pixellandmap.owner);
             let result2 = pixellandmap.get_owner(result[0]);
             assert_eq!(result2, pixellandmap.owner);
+           
+        }
+
+        #[ink::test]
+        fn buy_works() {
+            let mut pixellandmap = Pixellandmap::new();
+            let result = pixellandmap.check_if_owned([[11, 11], [22, 22]]);
+            assert_eq!(result, false);
+            let tx = pixellandmap.buy_new_plot([[11,11], [22, 22]]);
+            let result2 = pixellandmap.check_if_owned([[11, 11], [22, 22]]);
+            assert_eq!(result2, true);
            
         }
 
