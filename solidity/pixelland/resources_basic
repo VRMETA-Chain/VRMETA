@@ -1,0 +1,25 @@
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+
+
+contract Resources is ERC1155 {
+
+
+    uint256 public constant WOOD = 0;
+    uint256 public constant STONE = 1;
+    uint256 public constant FOOD = 2;
+    uint256 public constant HEALTH_POTIONS = 3;
+    uint256 public constant STAMINA_POTIONS = 4;
+    uint256 public constant SKELETON_BONES = 5;
+
+
+    constructor() public ERC1155("game_files") {
+        _mint(msg.sender, WOOD, 10**12, "");
+        _mint(msg.sender, STONE, 10**6, "");
+        _mint(msg.sender, FOOD, 10**10, "");
+        _mint(msg.sender, HEALTH_POTIONS, 10**5, "");
+        _mint(msg.sender, STAMINA_POTIONS, 10**5, "");
+        _mint(msg.sender, SKELETON_BONES, 10**9, "");
+    }
+}
