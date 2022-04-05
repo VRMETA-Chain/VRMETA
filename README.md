@@ -28,12 +28,15 @@ NFTs will be tradable in a multichain atmosphere by allocating NFTs and NFT type
 NFTs and game-assets will be easily transportable across blockchains using our specialized gameserver-VRMETA chain architecture.<br></br>
 ![character_17](https://user-images.githubusercontent.com/102953797/161655854-32d2a5a7-8d87-4c40-8d3f-9c8f1b21a95c.png)
 ![character_13](https://user-images.githubusercontent.com/102953797/161655860-d454ff7b-335c-4629-b2ef-31879e460e84.png)
+![Pets](https://user-images.githubusercontent.com/102953797/161656154-fcc55367-641d-437b-aa00-26a7f8b9f43e.png)
+
+![Monsters](https://user-images.githubusercontent.com/102953797/161656166-e81aadea-2d8d-42c8-b7df-9e9a954939e7.png)
 
 
 # VRMETAx20 
-Cross-Chain stable coin architecture of VRMETA.  1.5x peg to VRMETA.
-PIXEL: 1.5x peg
-SAGA: 1x peg
+Cross-Chain stable coin architecture of VRMETA.  1.5x peg to VRMETA.<br></br>
+PIXEL: 1.5x peg<br></br>
+SAGA: 1x peg<br></br>
 
 # VRMETA Native Payment SDK
 One of VRMETA's most important native applications will be the decentralized ability to buy VRMETA with credit cards or third party
