@@ -115,6 +115,13 @@ pub enum Error {
             return false;
         }
 
+        #[ink(message)]
+        pub fn get_owner(&mut self, coords: Coords) -> AccountId {
+            let result = self.is_owner.get(coords).unwrap();
+            result.into()
+        }
+
+
 
     }
 
@@ -142,13 +149,17 @@ pub enum Error {
             let mut pixellandmap = Pixellandmap::new();
             let result = pixellandmap.check_if_owned([[0,0], [10, 2]]);
             assert_eq!(result, true);
+            let result2 = pixellandmap.check_if_owned([[20,0], [50, 1]]);
+            assert_eq!(result2, false);
         }
 
         #[ink::test]
-        fn ownership_works2() {
+        fn get_owner_works() {
             let mut pixellandmap = Pixellandmap::new();
-            let result2 = pixellandmap.check_if_owned([[20,0], [50, 1]]);
-            assert_eq!(result2, false);
+            let result = pixellandmap.get_plot(pixellandmap.owner);
+            let result2 = pixellandmap.get_owner(result[0]);
+            assert_eq!(result2, pixellandmap.owner);
+           
         }
 
 
