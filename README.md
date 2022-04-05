@@ -16,11 +16,13 @@ time played, and overall total supply as follows (subject to change):
 REWARD = (Time played / 3_600 ) x (total individual staked / total circulating supply)
 
 Mining only occurs while playing~
+![pixelland demo (700 × 700 px) (700 × 450 px)](https://user-images.githubusercontent.com/102953797/161655700-94ab5d15-e535-4dfa-9b8a-a064a2b549fe.gif)
 
 # VRMETAx721 
 Cross-Chain NFT swap and management specialized for in-game, simultaneous multi-blockchain connections.
 NFTs will be tradable in a multichain atmosphere by allocating NFTs and NFT types to a swapping pool, similar to Uniswap's ERC20 token pools.
 NFTs and game-assets will be easily transportable across blockchains.
+![Uploading character_13.png…]()
 
 # VRMETAx20 
 Cross-Chain stable coin architecture of VRMETA.  1.5x peg to VRMETA.
