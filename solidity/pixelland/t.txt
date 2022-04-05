@@ -1,1 +1,0 @@
-Pixelland smart contracts for solidity and VRMETA(RUST)
