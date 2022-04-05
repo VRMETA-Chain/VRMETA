@@ -35,10 +35,10 @@ pub enum Error {
     /// Master wallet who receives funds from game.
     pub owner: AccountId,
     /// Mapsize
-    pub map_size: Grid;
+    pub map_size: Grid,
     /// Ownership Tracker
-    pub is_owned: Mapping<Coords, bool>;
-    pub is_owner: Mapping<Coords, AccountId>;
+    pub is_owned: Mapping<Coords, bool>,
+    pub is_owner: Mapping<Coords, AccountId>,
 }
 
     impl Pixellandmap {
@@ -52,18 +52,18 @@ pub enum Error {
          /// Default initializes the contract.
     fn new_init(&mut self) {
         let caller = Self::env().caller();
-        self.master_address = caller;
-        self.plot.insert(caller, [[0,0], [10,10]]);
+        self.owner = caller;
+        self.plot.insert(caller, &[[0,0], [10,10]]);
         self.map_size = [[0, 0], [100, 100]];
 
-        let mut x;
-        let mut y;
+        let mut x: u32 = 0;
+        let mut y: u32 = 0;
         while y <= 10 {
             while x <= 10 {
                 self.is_owned.insert([x, y], &true);
-                x++;
+                x += 1;
             }
-            y++;
+            y += 1;
         }
     }
 
@@ -76,24 +76,31 @@ pub enum Error {
         }
 
         #[ink(message)]
+        pub fn get_map_size(&mut self) -> Grid {
+            self.map_size
+        }
+
+        #[ink(message)]
         pub fn check_if_owned(&mut self, coords: Grid) -> bool {
-            let x = coords[0][0];
-            let y = coords[0][1];
+            let mut x = coords[0][0];
+            let mut y = coords[0][1];
             let x2 = coords[1][0];
             let y2 = coords[1][1];
             while y <= y2 {
                 while x <= x2 {
                     let result = self.is_owned.get(&[x, y]).unwrap();
                     if result == true {
-                        true
+                        return true;
                     } 
                     else {
-                        x++;
+                        x += 1;
                     }
                     
                 }
-                y++;
+               
+                y += 1;
             }
+            return false;
         }
 
 
@@ -113,10 +120,9 @@ pub enum Error {
         /// We test if the default constructor does its job.
         #[ink::test]
         fn default_works() {
-            let vrmetax1 = Vrmetax1::new();
-            let caller: AccountId = vrmetax1.self.env().caller();
-            let result = vrmetax1.ammo.get(&caller).unwrap();
-            assert_eq!(result, 0);
+            let pixellandmap = Pixellandmap::new();
+            let result = pixellandmap.map_size;
+            assert_eq!(result, [[0,0], [100,100]]);
         }
 
     }
