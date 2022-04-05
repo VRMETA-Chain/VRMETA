@@ -2,7 +2,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MapTest is Ownable {
+contract PixellandMapNFTDao is Ownable {
 
     //[x,y]
     uint[2] public mapDimensions;
