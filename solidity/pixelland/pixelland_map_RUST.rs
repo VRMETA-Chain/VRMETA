@@ -58,13 +58,26 @@ pub enum Error {
 
         let mut x: u32 = 0;
         let mut y: u32 = 0;
-        while y <= 10 {
-            while x <= 10 {
-                self.is_owned.insert([x, y], &true);
+        while y <= 100 {
+            while x <= 100 {
+                self.is_owned.insert([x, y], &false);
                 x += 1;
             }
             y += 1;
         }
+
+        let mut x2: u32 = 0;
+        let mut y2: u32 = 0;
+        while y2 <= 10 {
+            while x2 <= 10 {
+                self.is_owned.insert([x2, y2], &true);
+                self.is_owner.insert([x2, y2], &caller);
+                x2 += 1;
+            }
+            y2 += 1;
+        }
+
+        
     }
 
 
@@ -88,7 +101,7 @@ pub enum Error {
             let y2 = coords[1][1];
             while y <= y2 {
                 while x <= x2 {
-                    let result = self.is_owned.get(&[x, y]).unwrap();
+                    let result: bool = self.is_owned.get(&[x, y]).unwrap();
                     if result == true {
                         return true;
                     } 
@@ -97,7 +110,6 @@ pub enum Error {
                     }
                     
                 }
-               
                 y += 1;
             }
             return false;
@@ -124,6 +136,21 @@ pub enum Error {
             let result = pixellandmap.map_size;
             assert_eq!(result, [[0,0], [100,100]]);
         }
+
+        #[ink::test]
+        fn ownership_works() {
+            let mut pixellandmap = Pixellandmap::new();
+            let result = pixellandmap.check_if_owned([[0,0], [10, 2]]);
+            assert_eq!(result, true);
+        }
+
+        #[ink::test]
+        fn ownership_works2() {
+            let mut pixellandmap = Pixellandmap::new();
+            let result2 = pixellandmap.check_if_owned([[20,0], [50, 1]]);
+            assert_eq!(result2, false);
+        }
+
 
     }
 }
