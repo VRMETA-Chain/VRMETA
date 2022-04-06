@@ -33,6 +33,8 @@ pub type Result<T> = core::result::Result<T, Error>;
    pub struct Pixellandmap {
     /// Plots owned.
     pub plot: Mapping<AccountId, Grid>,
+    /// Price per Plot
+    pub plot_price: Balance,
     /// Master wallet who receives funds from game.
     pub owner: AccountId,
     /// Mapsize
@@ -55,17 +57,8 @@ pub type Result<T> = core::result::Result<T, Error>;
         let caller = Self::env().caller();
         self.owner = caller;
         self.plot.insert(caller, &[[0,0], [10,10]]);
+        self.plot_price = 100_000_000_000;
         self.map_size = [[0, 0], [100, 100]];
-
-        let mut x: u32 = 0;
-        let mut y: u32 = 0;
-        while y <= 100 {
-            while x <= 100 {
-                self.is_owned.insert([x, y], &false);
-                x += 1;
-            }
-            y += 1;
-        }
 
         let mut x2: u32 = 0;
         let mut y2: u32 = 0;
@@ -81,7 +74,7 @@ pub type Result<T> = core::result::Result<T, Error>;
         
     }
 
-    #[ink(message)]
+    #[ink(message, payable)]
     pub fn buy_new_plot(&mut self, coords: Grid) -> Result<()>  {
         let caller: AccountId = self.env().caller();
         let result = self.check_if_owned(coords);
@@ -101,6 +94,11 @@ pub type Result<T> = core::result::Result<T, Error>;
                 y += 1;
             }
          
+        }
+        if self.env().transfer(self.owner, self.plot_price).is_err() {
+            panic!(
+                "Funding problem."
+            )
         }
         Ok(())
     }
@@ -126,7 +124,6 @@ pub type Result<T> = core::result::Result<T, Error>;
                 while x <= x2 {
                     
                     let option = self.is_owned.get(&[x, y]);
-
                     if option == Some(true) {
                         return true
                     } 
@@ -160,6 +157,38 @@ pub type Result<T> = core::result::Result<T, Error>;
         /// Imports `ink_lang` so we can use `#[ink::test]`.
         use ink_lang as ink;
 
+        const DEFAULT_GAS_LIMIT: Balance = 1_000_000;
+
+        fn default_accounts() -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
+            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                .expect("off-chain environment should have been initialized already")
+        }
+
+        fn set_next_caller(caller: AccountId, value: Balance) {
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
+                caller,
+                contract_id(),
+                DEFAULT_GAS_LIMIT.try_into().unwrap(),
+                value,
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])),
+            )
+        }
+
+        fn get_balance(account_id: AccountId) -> Balance {
+            ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(account_id)
+                .expect("Cannot set account balance")
+        }
+
+        fn set_balance(account_id: AccountId, balance: Balance) {
+            ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(account_id, balance)
+                .expect("Cannot set account balance");
+        }
+
+        fn contract_id() -> AccountId {
+            ink_env::test::get_current_contract_account_id::<ink_env::DefaultEnvironment>()
+                .expect("Cannot get contract id")
+        }
+
         /// We test if the default constructor does its job.
         #[ink::test]
         fn default_works() {
@@ -189,11 +218,21 @@ pub type Result<T> = core::result::Result<T, Error>;
         #[ink::test]
         fn buy_works() {
             let mut pixellandmap = Pixellandmap::new();
+            
+            let og_bal = get_balance(pixellandmap.owner);
+            let accounts = default_accounts();
+            set_next_caller(accounts.alice, 100_000_000_000);
+            set_balance(contract_id(), 100_000_000_000);
             let result = pixellandmap.check_if_owned([[11, 11], [22, 22]]);
             assert_eq!(result, false);
+
             let tx = pixellandmap.buy_new_plot([[11,11], [22, 22]]);
             let result2 = pixellandmap.check_if_owned([[11, 11], [22, 22]]);
+            let owned = pixellandmap.get_owner([11, 11]);
             assert_eq!(result2, true);
+            assert_eq!(owned, accounts.alice);
+            let result3 = get_balance(pixellandmap.owner);
+            assert_eq!(result3, og_bal + 100_000_000_000);
            
         }
 
