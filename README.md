@@ -40,3 +40,6 @@ SAGA: 1x peg<br></br>
 One of VRMETA's most important native applications will be the decentralized ability to buy VRMETA with credit cards or third party
 payment apps anywhere in the world, then bridge to any network.  This is to eliminate the need to go through exchanges to get on-chain; 
 users can now get on-chain directly.
+
+# VRMETAx1
+This is the game-NFT standard which will be implemented for any game in the VRMETA ecosystem.
