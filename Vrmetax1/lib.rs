@@ -64,10 +64,10 @@ pub enum Error {
 
             //assert!(sent_amount >= 1_000000000);
 
-            let amount: Balance = _amount * 1000000000;
+            let amount: Balance = _amount * price;
             assert!(amount >= price, "1 coin or naught");
 
-            let bullets: Balance = amount / 1_000_000_000;
+            let bullets: Balance = _amount;
 
             if self.env().transfer(self.master_address, amount).is_err() {
                 panic!(
@@ -90,10 +90,10 @@ pub enum Error {
             let caller: AccountId = self.env().caller();
             let price: Balance = self.missiles_price;
 
-            let amount: Balance = _amount * 10_000_000_000;
+            let amount: Balance = _amount * price;
 
             assert!(amount >= price, "10 coins or naught");
-            let missiles = amount / 10_000_000_000;
+            let missiles: Balance = _amount;
 
             if self.env().transfer(self.master_address, amount).is_err() {
                 panic!(
@@ -317,7 +317,7 @@ pub enum Error {
 
             vrmetax1.set_ammo_missile_prices(2_000_000_000, 1_000_000_000);
             set_next_caller(accounts.bob, 100_000_000_000);
-            set_balance(contract_id(), 20_000_000_000);
+            set_balance(contract_id(), 10_000_000_000);
             vrmetax1.buy_ammo(5);
             let result3 = vrmetax1.get_ammo();
             assert_eq!(result3, 5);
