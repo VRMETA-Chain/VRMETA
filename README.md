@@ -11,7 +11,7 @@ Fighting in a dungeon.<br></br>
 
 # CURRENCY 
 VRMETA
-Total Supply Cap: 500,000,000
+Total Supply Cap: 500,000,000 <br></br>
 Initial circulating supply: 50,000,000 for airdrops, investments, development.
 
 # VRMETA Mining
