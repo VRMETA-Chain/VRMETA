@@ -9,11 +9,12 @@ mod mysolanaapp {
 
     pub fn create(ctx: Context<Create>, authority: Pubkey) -> Result<()> {
         let game = &mut ctx.accounts.game;
-        let system_program = &mut ctx.accounts.system_program;
 
         game.authority = authority;
-        game.ammo_price = 1_000_000_000;
-        game.missiles_price = 10_000_000_000;
+        game.ammo_price = 1_000_000;
+        game.missiles_price = 1_000_000_0; 
+        game.nft_skins_price = 500_000_000;
+        game.gun_rights_price = 500_000_000;
         Ok(())
     }
 
@@ -29,17 +30,59 @@ mod mysolanaapp {
         Ok(())
     }
 
-    pub fn buy_ammo(ctx: Context<UpdateInventory>, amount_bullets: u32) -> Result<()> {
+    pub fn buy_ammo(ctx: Context<UpdateInventory>, amount_bullets: u64) -> Result<()> {
         let player = &mut ctx.accounts.player;
         let game = &ctx.accounts.game;
         let from = player.key;
 
-        let price = amount_bullets as u64 * game.ammo_price;
+        let price = amount_bullets * game.ammo_price;
        
         let to = game.authority;
 
         system_instruction::transfer(&from, &to, price);
         player.ammo += amount_bullets;
+        Ok(())
+    }
+
+    pub fn buy_missiles(ctx: Context<UpdateInventory>, amount_missiles: u64) -> Result<()> {
+        let player = &mut ctx.accounts.player;
+        let game = &ctx.accounts.game;
+        let from = player.key;
+
+        let price = amount_missiles * game.missiles_price;
+       
+        let to = game.authority;
+
+        system_instruction::transfer(&from, &to, price);
+        player.missiles += amount_missiles;
+        Ok(())
+    }
+
+    pub fn buy_nft_rights(ctx: Context<UpdateInventory>) -> Result<()> {
+        let player = &mut ctx.accounts.player;
+        let game = &ctx.accounts.game;
+        let from = player.key;
+
+        let price = game.nft_skins_price;
+       
+        let to = game.authority;
+
+        system_instruction::transfer(&from, &to, price);
+        player.nft_skins = true;
+        Ok(())
+    }
+
+    pub fn buy_gun_rights(ctx: Context<UpdateInventory>) -> Result<()> {
+        let player = &mut ctx.accounts.player;
+        let game = &ctx.accounts.game;
+        let from = player.key;
+
+        let price = game.gun_rights_price;
+       
+        let to = game.authority;
+
+        system_instruction::transfer(&from, &to, price);
+        player.gun_rights = true;
         Ok(())
     }
 }
@@ -71,6 +114,7 @@ pub struct UpdateInventory<'info> {
     pub player: Account<'info, Player>,
     #[account(mut)]
     pub user: Signer<'info>,
+    /// Used to Read Prices
     pub game: Account<'info, VrmetaxFPS>,
 }
 
@@ -82,9 +126,9 @@ pub struct Player {
     /// Points from the game.
     pub points: u32,
     /// Items in the game.  Can be customized according to the item itself.
-    pub ammo: u32,
+    pub ammo: u64,
     /// Missiles
-    pub missiles: u32,
+    pub missiles: u64,
     /// Gun Rights
     pub gun_rights: bool,
     /// NFT Skins
@@ -96,5 +140,7 @@ pub struct VrmetaxFPS {
     pub authority: Pubkey,
     pub ammo_price: u64,
     pub missiles_price: u64,
+    pub gun_rights_price: u64,
+    pub nft_skins_price: u64,
  
 }
