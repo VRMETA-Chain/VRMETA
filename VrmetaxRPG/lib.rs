@@ -10,11 +10,10 @@ mod vrmetaxrpg {
 use ink_storage::traits::SpreadAllocate;
 use ink_storage::Mapping;
 
-pub type Name = String;
-pub type Class = String;
+pub type Name = AccountId;
+pub type Class = u8;
 pub type Lvl = u32;
 pub type Character = (Name, Class, Lvl);
-pub type Spells = (Name, Class);
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -64,8 +63,8 @@ pub enum Error {
         self.consumables.insert(caller, &0);
         self.consumables_price = 10_000_000_000;
         self.spells_owned.insert(caller, &false);
-        self.nft_skins.insert(caller, &false);
-        self.character.insert(caller, &("Jane", "Mage", 1));
+        self.nft_skins_owned.insert(caller, &false);
+        self.character.insert(caller, &(caller, 1u8, 1u32));
     }
 
         #[ink(message, payable)]
@@ -151,7 +150,7 @@ pub enum Error {
                 )
             }
 
-            self.nft_skins.insert(caller, &true);
+            self.nft_skins_owned.insert(caller, &true);
         }
 
 
@@ -190,7 +189,7 @@ pub enum Error {
          #[ink(message)]
          pub fn get_owns_nft_skin(&self) -> bool {
              let caller: AccountId = self.env().caller();
-             self.nft_skins.get(&caller).unwrap()
+             self.nft_skins_owned.get(&caller).unwrap()
          }
 
          #[ink(message)]
