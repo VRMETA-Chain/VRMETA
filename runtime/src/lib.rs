@@ -39,6 +39,7 @@ pub use frame_support::{
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_timestamp::Call as TimestampCall;
 pub use pallet_timestake;
+pub use pallet_chainless_mint_iou;
 use pallet_transaction_payment::CurrencyAdapter;
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
@@ -374,6 +375,12 @@ impl pallet_timestake::Config for Runtime {
 	type Vrmeta = Balances;
 }
 
+impl pallet_chainless_mint_iou::Config for Runtime {
+	type Event = Event;
+    type TimeProvider = pallet_timestamp::Pallet<Runtime>;
+	type Vrmeta = Balances;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub enum Runtime where
@@ -386,6 +393,7 @@ construct_runtime!(
 		Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
 		Aura: pallet_aura,
 		Timestake: pallet_timestake,
+		Chainless: pallet_chainless_mint_iou,
 		Grandpa: pallet_grandpa,
 		Balances: pallet_balances,
 		TransactionPayment: pallet_transaction_payment,
