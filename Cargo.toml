@@ -2,9 +2,12 @@
 members = [
     'node',
     'runtime',
-    'timestake',
+    'pallets/timestake',
     'metascore',
-    'Vrmetax1'
+    'VrmetaxFPS',
+    'VrmetaxRPG',
+    'pixelland_map',
+    'pallets/chainless_mint_iou',
 ]
 [profile.release]
 panic = 'unwind'
