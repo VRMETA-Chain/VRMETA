@@ -90,24 +90,24 @@ pub mod pallet {
         #[pallet::weight((10_000, DispatchClass::Normal, Pays::No))]
         pub fn validate_hash(
             origin: OriginFor<T>,
-            pw:  Vec<u8>,
+            pw:  [u8; 32],
         ) -> DispatchResult {
             
             let sender = ensure_signed(origin)?;
-            let hash: [u8; 32] = Self::hash_out(pw);
+            //let hash: [u8; 32] = Self::hash_out(pw);
         
-            ensure!(Claims::<T>::contains_key(&hash), Error::<T>::NoClaim);
+            ensure!(Claims::<T>::contains_key(&pw), Error::<T>::NoClaim);
             let current_time: u64 = T::TimeProvider::now().as_secs();
-            let time_expire: [Balance<T>; 2] = Claims::<T>::get(&hash).unwrap();
+            let time_expire: [Balance<T>; 2] = Claims::<T>::get(&pw).unwrap();
             // Verify that the specified proof has not already been claimed.
             
-            ensure!(time_expire[1] <= Self::switch(current_time as u32), Error::<T>::ClaimExpired);
+            ensure!(time_expire[1] >= Self::switch(current_time as u32), Error::<T>::ClaimExpired);
 
             let amount_to_give = time_expire[0];
             T::Vrmeta::deposit_into_existing(&sender, amount_to_give);
 
-            Self::deposit_event(Event::ClaimFiled(hash, sender, current_time as u32, amount_to_give));
-            Claims::<T>::remove(&hash);
+            Self::deposit_event(Event::ClaimFiled(pw, sender, current_time as u32, amount_to_give));
+            Claims::<T>::remove(&pw);
 
             Ok(())
         }
@@ -123,7 +123,7 @@ pub mod pallet {
             ensure!(!Claims::<T>::contains_key(&hash), Error::<T>::ClaimExists);
         
             let current_time: u64 = T::TimeProvider::now().as_secs();
-            let expiration_time = Self::switch(current_time as u32 + 300u32);
+            let expiration_time = Self::switch(current_time as u32 + 3_600u32);
 
             let amount_to_give: Balance<T> = amount;       
             Claims::<T>::insert(&hash, [amount_to_give, expiration_time]);
