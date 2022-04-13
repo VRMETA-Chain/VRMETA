@@ -3,7 +3,7 @@
 use ink_lang as ink;
 
 #[ink::contract]
-mod vrmetax1 {
+mod vrmetaxfps {
 
 use ink_storage::traits::SpreadAllocate;
 use ink_storage::Mapping;
@@ -20,7 +20,7 @@ pub enum Error {
     /// to add new static storage fields to your contract.
 #[ink(storage)]
 #[derive(SpreadAllocate)]
-   pub struct Vrmetax1 {
+   pub struct VrmetaxFPS {
     /// Points from the game.
     pub points: Mapping<AccountId, u32>,
     /// Master wallet who receives funds from game.
@@ -37,7 +37,7 @@ pub enum Error {
     pub nft_skins: Mapping<AccountId, bool>
 }
 
-    impl Vrmetax1 {
+    impl VrmetaxFPS {
         #[ink(constructor, payable)]
         pub fn new() -> Self {
             // Even though we're not explicitly initializing the `Mapping`,
@@ -50,69 +50,60 @@ pub enum Error {
         let caller = Self::env().caller();
         self.master_address = caller;
         self.ammo.insert(caller, &0);
-        self.ammo_price = 1_000_000_000;
+        self.ammo_price = 1;
         self.missiles.insert(caller, &0);
-        self.missiles_price = 10_000_000_000;
+        self.missiles_price = 10;
         self.gun_rights.insert(caller, &false);
         self.nft_skins.insert(caller, &false);
     }
 
         #[ink(message, payable)]
-        pub fn buy_ammo(&mut self, _amount: Balance) {
+        pub fn buy_ammo(&mut self) {
             let caller: AccountId = self.env().caller();
             let price: Balance = self.ammo_price;
 
-            //assert!(sent_amount >= 1_000000000);
-
-            let amount: Balance = _amount * price;
+            let _transferred = self.env().transferred_value();
+            let amount: Balance = _transferred / price;
+           // assert!(_transferred >= amount);
             assert!(amount >= price, "1 coin or naught");
 
-            let bullets: Balance = _amount;
+            let bullets: Balance = amount  / 1_000_000_000;
 
             if self.env().transfer(self.master_address, amount).is_err() {
                 panic!(
                     "Funding problem."
                 )
             }
-
-            let old_amount = self.ammo.get(&caller);
-            if old_amount == None {
-                self.ammo.insert(caller, &bullets)
-            } 
-            else {
-                self.ammo.insert(caller, &(bullets + old_amount.unwrap()));
-            }
+            let old_amount = self.get_ammo(caller);
+            self.ammo.insert(caller, &(bullets + old_amount))
             
         }
 
         #[ink(message, payable)]
-        pub fn buy_missiles(&mut self, _amount: Balance) {
+        pub fn buy_missiles(&mut self) {
             let caller: AccountId = self.env().caller();
             let price: Balance = self.missiles_price;
 
-            let amount: Balance = _amount * price;
+            let _transferred = self.env().transferred_value();
+            let amount: Balance = _transferred / price;
 
             assert!(amount >= price, "10 coins or naught");
-            let missiles: Balance = _amount;
+            let missiles: Balance = amount / 1_000_000_000;
 
-            if self.env().transfer(self.master_address, amount).is_err() {
+            if self.env().transfer(self.master_address, _transferred).is_err() {
                 panic!(
                     "Funding problem."
                 )
             }
-            let old_amount = self.missiles.get(&caller);
-            if old_amount == None {
-                self.missiles.insert(caller, &missiles)
-            } 
-            else {
-                self.missiles.insert(caller, &(missiles + old_amount.unwrap()));
-            }
+
+            let old_amount = self.get_missiles(caller);
+            self.missiles.insert(caller, &(missiles + old_amount));
         }
 
         #[ink(message, payable)]
         pub fn buy_gun_rights(&mut self) {
             let caller: AccountId = self.env().caller();
-            let price: Balance = 50_000_000_000;
+            let price: Balance = 50;
 
             let amount = self.env().transferred_value();
             assert!(amount >= price, "50 coins or naught");
@@ -129,7 +120,7 @@ pub enum Error {
         #[ink(message, payable)]
         pub fn buy_nft_skin(&mut self) {
             let caller: AccountId = self.env().caller();
-            let price: Balance = 200_000_000_000;
+            let price: Balance = 200;
 
             let amount = price;
             assert!(amount >= price, "200 coins or naught");
@@ -151,42 +142,51 @@ pub enum Error {
             self.ammo.insert(caller, &amount_left)
         }
 
+        #[ink(message)]
+        pub fn give_two_hundred_vrmeta(&mut self) {
+            let caller: AccountId = self.env().caller();
+            let amount: Balance = 200;
+            if self.env().transfer(caller, amount).is_err() {
+                panic!(
+                    "Funding problem."
+                )
+            }
+        }
+
         /// Return ammo
         #[ink(message)]
-        pub fn get_ammo(&self) -> Balance {
-            let caller: AccountId = self.env().caller();
-            let result = self.ammo.get(&caller);
+        pub fn get_ammo(&self, account: AccountId) -> u128 {
+            let result = self.ammo.get(&account);
             if result == None {
-                return 0
-            } 
-            else {
-                return result.unwrap()
+                0
+            } else {
+                result.unwrap()
             }
         }
 
          /// Return ammo
          #[ink(message)]
-         pub fn get_missiles(&self) -> Balance {
-             let caller: AccountId = self.env().caller();
-             let result = self.missiles.get(&caller);
-            if result == None {
-                return 0
-            } 
-            else {
-                return result.unwrap()
+         pub fn get_missiles(&self, account: AccountId) -> Balance {
+             let result = self.missiles.get(&account);
+             if result == None {
+                0
+            } else {
+                result.unwrap()
             }
          }
 
          #[ink(message)]
          pub fn get_gun_rights(&self) -> bool {
              let caller: AccountId = self.env().caller();
-             self.gun_rights.get(&caller).unwrap()
+             let result = self.gun_rights.get(&caller);
+             result.unwrap()
          }
 
          #[ink(message)]
          pub fn get_owns_nft_skin(&self) -> bool {
              let caller: AccountId = self.env().caller();
-             self.nft_skins.get(&caller).unwrap()
+             let result = self.nft_skins.get(&caller);
+             result.unwrap()
          }
 
          #[ink(message)]
@@ -245,14 +245,14 @@ pub enum Error {
         /// We test if the default constructor does its job.
         #[ink::test]
         fn default_works() {
-            let vrmetax1 = Vrmetax1::new();
+            let vrmetax1 = VrmetaxFPS::new();
             let result = vrmetax1.get_ammo();
             assert_eq!(result, 0);
         }
 
         #[ink::test]
         fn buy_ammo_works() {
-            let mut vrmetax1 = Vrmetax1::new();
+            let mut vrmetax1 = VrmetaxFPS::new();
             let accounts = default_accounts();
             let og_bal = get_balance(vrmetax1.master_address);
             set_next_caller(accounts.alice, 100_000_000_000);
@@ -267,7 +267,7 @@ pub enum Error {
 
         #[ink::test]
         fn buy_missiles_works() {
-            let mut vrmetax1 = Vrmetax1::new();
+            let mut vrmetax1 = VrmetaxFPS::new();
             let accounts = default_accounts();
             let og_bal = get_balance(vrmetax1.master_address);
             set_next_caller(accounts.alice, 100_000_000_000);
@@ -282,7 +282,7 @@ pub enum Error {
 
         #[ink::test]
         fn buy_nft_skin_works() {
-            let mut vrmetax1 = Vrmetax1::new();
+            let mut vrmetax1 = VrmetaxFPS::new();
             let accounts = default_accounts();
             let og_bal = get_balance(vrmetax1.master_address);
 
@@ -302,7 +302,7 @@ pub enum Error {
 
         #[ink::test]
         fn set_price_works() {
-            let mut vrmetax1 = Vrmetax1::new();
+            let mut vrmetax1 = VrmetaxFPS::new();
             let accounts = default_accounts();
             let og_bal = get_balance(vrmetax1.master_address);
             set_next_caller(accounts.alice, 100_000_000_000);
