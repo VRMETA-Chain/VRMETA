@@ -1,0 +1,39 @@
+pragma solidity ^0.8.0;
+
+import "./Pixel.sol";
+
+contract Quest {
+    address contractor;
+    address contractee;
+    uint term;
+    uint reward;
+
+    constructor(address _contractor, address _contractee, uint _term, uint _reward) {
+        contractor = _contractor;
+        contractee = _contractee;
+        term = _term;
+        reward = _reward;
+    }
+
+    function transferOwner(address who) public {
+        require(msg.sender == contractor && who != address(0));
+    }
+}
+
+contract DIYfactory {
+    address private authority;
+    IERC20 public pixel;
+
+    constructor(address _pixel) {
+        authority = msg.sender;
+        pixel = IERC20(_pixel);
+    }
+
+    Quest [] public quests;
+
+    function writeQuest(address _contractee, uint _term, uint _rewardToOffer) public {
+        require(_rewardToOffer <= pixel.balanceOf(msg.sender), "Not enough Pixel.");
+        Quest quest = new Quest(msg.sender, _contractee, _term, _rewardToOffer);
+        quests.push(quest);
+    }
+}
