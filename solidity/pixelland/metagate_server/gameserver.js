@@ -7,6 +7,15 @@ const { emit } = require('process');
 const io2 = require("socket.io-client");
 var socket = io2();
 
+//wallet generation ---------------------------------------------------------
+//Use for creation in-game wallets
+const crypto = require("crypto");
+const util = require("ethereumjs-util");
+
+const privateKey = "0x" + crypto.randomBytes(32).toString("hex");
+const publicKey = "0x" + util.privateToPublic(privateKey).toString("hex");
+// --------------------------------------------------------------------------
+
  var clients = [];
 
 
