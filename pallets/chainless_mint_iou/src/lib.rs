@@ -16,17 +16,17 @@ pub mod pallet {
 
 
    pub type NegativeImbalanceOf<T> = <<T as Config>::Vrmeta as Currency<<T as frame_system::Config>::AccountId>>::NegativeImbalance;
-   pub type Balance<T> = <<T as Config>::Vrmeta as Currency<<T as frame_system::Config>::AccountId>>::Balance;
+   pub type BalanceOf<T> = <<T as Config>::Vrmeta as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
    impl<T: Config> Pallet<T> {
-    pub fn switch(i: u32) -> Balance<T> {
+    pub fn switch(i: u32) -> BalanceOf<T> {
         i.into()
     }
 
 
    pub fn hash_out(phrase: Vec<u8>) -> [u8; 32] {
     let phrase_bytes: &[u8] = &phrase;
-    let data = keccak_256(phrase_bytes); 
+    let data = sha2_256(phrase_bytes); 
     data
     }
 }
@@ -52,9 +52,11 @@ pub mod pallet {
     #[pallet::generate_deposit(pub(super) fn deposit_event)]
     pub enum Event<T: Config> {
         /// Event emitted when connected. [Hash, timestamp]
-        ClaimReceived([u8; 32], [Balance<T>; 2]),
-        /// Event emitted when disconnected. [Hash, who, timestamp, reward]
-        ClaimFiled([u8; 32], T::AccountId, u32, Balance<T>),
+        ClaimReceived([u8; 32], [BalanceOf<T>; 2]),
+        /// Event emitted . [Hash, who, timestamp, reward]
+        ClaimFiled([u8; 32], T::AccountId, u32, BalanceOf<T>),
+        /// Hash Sent to Portals
+        EmitHash([u8; 32], T::AccountId, BalanceOf<T>),
     
     }
 
@@ -78,7 +80,7 @@ pub mod pallet {
         _,
         Blake2_128Concat,
         [u8; 32],
-        [Balance<T>; 2],
+        [BalanceOf<T>; 2],
         OptionQuery,
     >;
 
@@ -98,10 +100,10 @@ pub mod pallet {
         
             ensure!(Claims::<T>::contains_key(&hash), Error::<T>::NoClaim);
             let current_time: u64 = T::TimeProvider::now().as_secs();
-            let time_expire: [Balance<T>; 2] = Claims::<T>::get(&hash).unwrap();
+            let time_expire: [BalanceOf<T>; 2] = Claims::<T>::get(&hash).unwrap();
             // Verify that the specified proof has not already been claimed.
             
-            ensure!(time_expire[1] <= Self::switch(current_time as u32), Error::<T>::ClaimExpired);
+            ensure!(time_expire[1] >= Self::switch(current_time as u32), Error::<T>::ClaimExpired);
 
             let amount_to_give = time_expire[0];
             T::Vrmeta::deposit_into_existing(&sender, amount_to_give);
@@ -116,22 +118,45 @@ pub mod pallet {
         pub fn hash_received(
             origin: OriginFor<T>,
             hash: [u8; 32],
-            amount: Balance<T>
+            amount: BalanceOf<T>
         ) -> DispatchResult {
          
             // Verify that the specified proof has been claimed.
             ensure!(!Claims::<T>::contains_key(&hash), Error::<T>::ClaimExists);
         
             let current_time: u64 = T::TimeProvider::now().as_secs();
-            let expiration_time = Self::switch(current_time as u32 + 300u32);
+            let expiration_time = Self::switch(current_time as u32 + 3_600u32);
 
-            let amount_to_give: Balance<T> = amount;       
+            let amount_to_give: BalanceOf<T> = amount;       
             Claims::<T>::insert(&hash, [amount_to_give, expiration_time]);
 
            //let _tx = T::Vrmeta::deposit_into_existing(&sender, amount_to_give);
 
 
             Self::deposit_event(Event::ClaimReceived(hash, [amount_to_give, expiration_time]));
+            Ok(())
+        }
+
+        #[pallet::weight((1_000, DispatchClass::Normal, Pays::No))]
+        pub fn hash_emitted(
+            origin: OriginFor<T>,
+            amount: BalanceOf<T>,
+            pw:  Vec<u8>,
+        ) -> DispatchResult {
+            let sender = ensure_signed(origin)?;
+            let hash: [u8; 32] = Self::hash_out(pw);
+           /// ensure!(!Claims::<T>::contains_key(&hash), Error::<T>::ClaimExists);
+        
+            let current_time: u64 = T::TimeProvider::now().as_secs();
+            let expiration_time = Self::switch(current_time as u32 + 3_600u32);
+
+            let amount_to_give: BalanceOf<T> = amount;       
+            Claims::<T>::insert(&hash, [amount_to_give, expiration_time]);
+
+           //let _tx = T::Vrmeta::deposit_into_existing(&sender, amount_to_give);
+
+
+            Self::deposit_event(Event::EmitHash(hash, sender, amount));
             Ok(())
         }
        

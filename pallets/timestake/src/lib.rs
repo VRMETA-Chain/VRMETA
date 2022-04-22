@@ -110,7 +110,7 @@ pub mod pallet {
             let divisor: BalanceOf<T> = Self::switch(3_600);
 
             let amount_to_give: BalanceOf<T> = (multiplier / divisor) * coin_per_hour;       
-            let _tx = T::Vrmeta::deposit_into_existing(&sender, amount_to_give);
+            T::Vrmeta::deposit_into_existing(&sender, amount_to_give);
 
 
             Players::<T>::remove(&sender);
