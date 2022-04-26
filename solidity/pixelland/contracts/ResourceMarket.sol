@@ -72,8 +72,8 @@ contract ResourceMarket is ERC1155Holder {
 
     ///@notice buyers can find the best deals.
     function getMinPriceSellOrder(uint _itemId) public view returns(SellOrder memory) {
-        SellOrder memory sellOrder = findLowestPrice(_itemId);
-        return sellOrder; 
+        uint index = findLowestPrice(_itemId);
+        return sellOrders[index]; 
     }
 
     ///@notice sellers can find the best deal for their goods.
@@ -83,11 +83,11 @@ contract ResourceMarket is ERC1155Holder {
     }
 
     function buyItemFromMerchant(SellOrder memory sellorder, uint _itemId, uint amount) public {
-        SellOrder memory fromOrder = sellorder;
-        require(fromOrder.item == _itemId, "Not selling that.");
-        uint price = fromOrder.pricePerItem * amount;
-        pixel.transferFrom(msg.sender, fromOrder.merchant, price);
-        fromOrder.amountToSell -= amount;
+        require(sellorder.item == _itemId, "Not selling that.");
+        uint price = sellorder.pricePerItem * amount;
+        pixel.transferFrom(msg.sender, sellorder.merchant, price);
+        resources.safeTransferFrom(address(this), msg.sender, _itemId, amount, "");
+        sellorder.amountToSell -= amount;
     }
     function sellItemToMerchant(BuyOrder memory buyorder, uint _itemId, uint amount) public {
         BuyOrder memory fromOrder = buyorder;
@@ -99,23 +99,25 @@ contract ResourceMarket is ERC1155Holder {
         pixelForBuyOrder[fromOrder.merchant] -= price;
     }
 
-    function findLowestPrice(uint _itemId) internal view returns(SellOrder memory) {
+    function findLowestPrice(uint _itemId) internal view returns(uint) {
        SellOrder memory sellorder;
+       uint index;
        for(uint x=0; x < sellOrders.length; x++){
            if(sellOrders[x].item == _itemId) {
-              if (sellOrders[x].pricePerItem < sellOrders[x].pricePerItem) {
+              if (sellOrders[x].pricePerItem < sellorder.pricePerItem) {
                sellorder = sellOrders[x];
+               index = x;
            }
        }
-           }
-           return sellorder;
+           } 
+           return index;
        }
 
     function findHighestPrice(uint _itemId) internal view returns(BuyOrder memory) {
        BuyOrder memory buyorder;
        for(uint x=0; x < buyOrders.length; x++){
            if(buyOrders[x].item == _itemId) {
-              if (buyOrders[x].pricePerItem > buyOrders[x].pricePerItem) {
+              if (buyOrders[x].pricePerItem > buyorder.pricePerItem) {
                buyorder = buyOrders[x];
            }
        }
