@@ -16,6 +16,7 @@ describe("ResourceMarket", function () {
         resourceMarket = await ResourceMarket.deploy(pixel.address, resources.address);
 
         await pixel.transfer(addr1.address,1000);
+
         
     });
 
@@ -57,13 +58,33 @@ describe("ResourceMarket", function () {
 
     await pixel.connect(addr1).approve(resourceMarket.address, pixel.balanceOf(owner.address));
     const lowestPriceOrder = await resourceMarket.connect(addr1).getMinPriceSellOrder(WOOD_ID);
-    const tx = await resourceMarket.connect(addr1).buyItemFromMerchant(lowestPriceOrder, WOOD_ID, 5);
-    await tx.wait();
+    await resourceMarket.connect(addr1).buyItemFromMerchant(lowestPriceOrder, WOOD_ID, 5);
     const woodBalanceAfter = await resources.balanceOf(resourceMarket.address, WOOD_ID);
     const woodBought = await resources.balanceOf(addr1.address, WOOD_ID);
 
     expect(woodBalanceAfter).to.equal(5);
     expect(woodBought).to.equal(5);
+  });
+
+  it("Should let someone sell to a Buy Order", async function () {
+    await pixel.connect(addr1).approve(resourceMarket.address, pixel.balanceOf(owner.address));
+
+    const preWoodBalance = await resources.balanceOf(owner.address, 0);
+
+    const WOOD_ID = 0;
+    await resourceMarket.connect(addr1).createBuyOrder(WOOD_ID, 60, 1);
+   
+
+    await resources.connect(owner).setApprovalForAll(resourceMarket.address, true);
+    const highestPriceOrder = await resourceMarket.getMaxPriceBuyOrder(WOOD_ID);
+    await resourceMarket.connect(owner).sellItemToMerchant(highestPriceOrder, WOOD_ID, 60);
+
+    const woodBalanceAfterSelling = await resources.balanceOf(addr1.address, WOOD_ID);
+    const woodBalance = await resources.balanceOf(owner.address, WOOD_ID);
+
+
+    expect(woodBalance).to.equal(preWoodBalance - 60);
+    expect(woodBalanceAfterSelling).to.equal(60);
   });
 
 
