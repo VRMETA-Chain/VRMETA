@@ -78,8 +78,8 @@ contract ResourceMarket is ERC1155Holder {
 
     ///@notice sellers can find the best deal for their goods.
     function getMaxPriceBuyOrder(uint _itemId) public view returns(BuyOrder memory) {
-        BuyOrder memory buyOrder = findHighestPrice(_itemId);
-        return buyOrder; 
+        uint index = findHighestPrice(_itemId);
+        return buyOrders[index]; 
     }
 
     function buyItemFromMerchant(SellOrder memory sellorder, uint _itemId, uint amount) public {
@@ -113,16 +113,18 @@ contract ResourceMarket is ERC1155Holder {
            return index;
        }
 
-    function findHighestPrice(uint _itemId) internal view returns(BuyOrder memory) {
+    function findHighestPrice(uint _itemId) internal view returns(uint) {
        BuyOrder memory buyorder;
+       uint index;
        for(uint x=0; x < buyOrders.length; x++){
            if(buyOrders[x].item == _itemId) {
               if (buyOrders[x].pricePerItem > buyorder.pricePerItem) {
                buyorder = buyOrders[x];
+               index = x;
            }
        }
            }
-           return buyorder;
+           return index;
        }
 
 }
