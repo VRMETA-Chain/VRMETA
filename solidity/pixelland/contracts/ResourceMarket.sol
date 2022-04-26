@@ -90,13 +90,11 @@ contract ResourceMarket is ERC1155Holder {
         sellorder.amountToSell -= amount;
     }
     function sellItemToMerchant(BuyOrder memory buyorder, uint _itemId, uint amount) public {
-        BuyOrder memory fromOrder = buyorder;
-        require(fromOrder.item == _itemId, "Not buying that.");
-        uint price = fromOrder.pricePerItem * amount;
+        require(buyorder.item == _itemId, "Not buying that.");
+        uint price = buyorder.pricePerItem * amount;
         pixel.transfer(msg.sender, price);
-        resources.safeTransferFrom(msg.sender, fromOrder.merchant, _itemId, amount, "");
-        fromOrder.amountToBuy -= amount;
-        pixelForBuyOrder[fromOrder.merchant] -= price;
+        resources.safeTransferFrom(msg.sender, buyorder.merchant, _itemId, amount, "");
+        buyorder.amountToBuy -= amount;
     }
 
     function findLowestPrice(uint _itemId) internal view returns(uint) {
