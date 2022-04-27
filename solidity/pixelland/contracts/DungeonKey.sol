@@ -13,6 +13,8 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 
 contract DungeonKey is ERC1155, Ownable {
     IERC20 public pixel;
+    
+    ///current keysetId
     uint counter;
 
     event NewKeySet(string name, uint amount, uint timestamp);
@@ -30,12 +32,13 @@ contract DungeonKey is ERC1155, Ownable {
     }
 
     Auction public auction;
-    uint auctionCounter;
     
     constructor() ERC1155("Dungeon Keys") {} 
 
+    ///Name of keyset for Pixelland Dungeons.
     mapping(uint => string) public dungeonKeys;
 
+    ///Make a new set of keys.
     function mintNewKeySet(uint amount, string memory name) public onlyOwner {
          _mint(msg.sender, counter, amount, "");
          dungeonKeys[counter] = name;
@@ -43,6 +46,9 @@ contract DungeonKey is ERC1155, Ownable {
          emit NewKeySet(name, amount, block.timestamp); 
     }
 
+    ///Starts an auction and lets an address/factions bid for the amount
+    ///Used for early access to dungeons or special exclusive zones.
+    ///Can be resold for profit.
     function dungeonKeyAuction(uint basePrice, uint duration, uint keySetId, uint amount) public onlyOwner {
         require(block.timestamp < auction.finishTime);
         Auction memory newAuction = Auction({
@@ -58,6 +64,7 @@ contract DungeonKey is ERC1155, Ownable {
         emit AuctionStarted(keySetId, amount, basePrice, duration);
     }
 
+    ///Bids are in PIXEL and must be higher than the last bidder.
     function bidOnAuction(uint amountPixel) public {
         require(block.timestamp < auction.finishTime);
         require(amountPixel > auction.highestBid);
@@ -68,6 +75,7 @@ contract DungeonKey is ERC1155, Ownable {
         emit NewHighestBid(amountPixel);
     }
 
+    ///Ends the auction and transfers keyset to winner.
     function forceAuctionEnd() public onlyOwner {
         auction.finishTime = 0;
         uint amount = balanceOf(address(this), auction.keyId);
@@ -76,11 +84,13 @@ contract DungeonKey is ERC1155, Ownable {
         emit AuctionFinished(auction.highestBid, block.timestamp);
     }
 
+    ///Withdraw highest bid funds to owner address.
     function withdrawPixel() public {
         require(block.timestamp < auction.finishTime);
         pixel.transfer(owner(), auction.highestBid);
     }
 
+    ///Hook function called in bidOnAuction();
     function refundLastBid() private {
         address who = auction.highestBidder;
         uint amount = auction.highestBid;
