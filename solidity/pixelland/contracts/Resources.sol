@@ -13,6 +13,7 @@ contract Resources is ERC1155 {
     uint256 public constant HEALTH_POTIONS = 3;
     uint256 public constant STAMINA_POTIONS = 4;
     uint256 public constant SKELETON_BONES = 5;
+    uint256 public constant DUAL_POTIONS = 6;
 
 
     constructor(address _pixel) ERC1155("Pixelland Resources") {
@@ -54,5 +55,15 @@ contract Resources is ERC1155 {
         _burn(msg.sender, FOOD, amountFood);
         _burn(msg.sender, STONE, amountWood);
         _mint(msg.sender, STAMINA_POTIONS, amount, "");
+    }
+
+    function makeDualPotion(uint amount) public {
+        uint amountFood = amount * 10;
+        uint amountWood = amount * 10;
+        uint amountBones = amount * 5;
+        _burn(msg.sender, FOOD, amountFood);
+        _burn(msg.sender, WOOD, amountWood);
+        _burn(msg.sender, SKELETON_BONES, amountBones);
+        _mint(msg.sender, DUAL_POTIONS, amount, "");
     }
 }

@@ -6,6 +6,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Council is Ownable {
 
+    struct Profession {
+        uint job;
+        
+    }
+
+    mapping(address => Profession) public profession;
+
     constructor() {
        
     }  
