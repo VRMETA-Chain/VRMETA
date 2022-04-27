@@ -18,6 +18,7 @@ contract ResourceMarket is ERC1155Holder {
     uint256 public constant HEALTH_POTIONS = 3;
     uint256 public constant STAMINA_POTIONS = 4;
     uint256 public constant SKELETON_BONES = 5;
+    uint256 public constant DUAL_POTIONS = 6;
 
     mapping(address => uint) public pixelForBuyOrder;
 
@@ -71,30 +72,40 @@ contract ResourceMarket is ERC1155Holder {
     }
 
     ///@notice buyers can find the best deals.
-    function getMinPriceSellOrder(uint _itemId) public view returns(SellOrder memory) {
+    function getMinPriceSellOrder(uint _itemId) public view returns(uint) {
         uint index = findLowestPrice(_itemId);
-        return sellOrders[index]; 
+        return index; 
     }
 
     ///@notice sellers can find the best deal for their goods.
-    function getMaxPriceBuyOrder(uint _itemId) public view returns(BuyOrder memory) {
+    function getMaxPriceBuyOrder(uint _itemId) public view returns(uint) {
         uint index = findHighestPrice(_itemId);
-        return buyOrders[index]; 
+        return index; 
     }
 
-    function buyItemFromMerchant(SellOrder memory sellorder, uint _itemId, uint amount) public {
-        require(sellorder.item == _itemId, "Not selling that.");
-        uint price = sellorder.pricePerItem * amount;
-        pixel.transferFrom(msg.sender, sellorder.merchant, price);
+    function buyItemFromMerchant(uint index, uint _itemId, uint amount) public {
+        require(sellOrders[index].item == _itemId, "Not selling that.");
+        uint price = sellOrders[index].pricePerItem * amount;
+        pixel.transferFrom(msg.sender, sellOrders[index].merchant, price);
         resources.safeTransferFrom(address(this), msg.sender, _itemId, amount, "");
-        sellorder.amountToSell -= amount;
+        sellOrders[index].amountToSell -= amount;
+        if (sellOrders[index].amountToSell == 0) {
+                uint last = sellOrders.length - 1;
+                sellOrders[0] = sellOrders[last];
+                sellOrders.pop();
+        }
     }
-    function sellItemToMerchant(BuyOrder memory buyorder, uint _itemId, uint amount) public {
-        require(buyorder.item == _itemId, "Not buying that.");
-        uint price = buyorder.pricePerItem * amount;
+    function sellItemToMerchant(uint index, uint _itemId, uint amount) public {
+        require(buyOrders[index].item == _itemId, "Not buying that.");
+        uint price = buyOrders[index].pricePerItem * amount;
         pixel.transfer(msg.sender, price);
-        resources.safeTransferFrom(msg.sender, buyorder.merchant, _itemId, amount, "");
-        buyorder.amountToBuy -= amount;
+        resources.safeTransferFrom(msg.sender, buyOrders[index].merchant, _itemId, amount, "");
+        buyOrders[index].amountToBuy -= amount;
+        if (buyOrders[index].amountToBuy == 0) {
+                uint last = buyOrders.length - 1;
+                buyOrders[0] = buyOrders[last];
+                buyOrders.pop();
+        }
     }
 
     function findLowestPrice(uint _itemId) internal view returns(uint) {
