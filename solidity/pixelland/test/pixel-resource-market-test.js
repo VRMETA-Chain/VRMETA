@@ -87,5 +87,27 @@ describe("ResourceMarket", function () {
     expect(woodBalanceAfterSelling).to.equal(60);
   });
 
+  it("Should let someone craft potions with resources", async function () {
+    const FOOD_ID = 2;
+    const STONE_ID = 1;
+    const HEALTH_POTION = 3;
+    const preFoodBalance = await resources.balanceOf(owner.address, FOOD_ID);
+    const preStoneBalance = await resources.balanceOf(owner.address, STONE_ID);
+    const preHP = await resources.balanceOf(owner.address, HEALTH_POTION);
+
+    //One health potion = 10 food, 5 stone;
+    await resources.makeHealthPotion(1);
+ 
+    const postFoodBalance = await resources.balanceOf(owner.address, FOOD_ID);
+    const postStoneBalance = await resources.balanceOf(owner.address, STONE_ID);
+    const postHP = await resources.balanceOf(owner.address, HEALTH_POTION);
+    const result = postHP - preHP;
+
+
+    expect(postFoodBalance).to.equal(preFoodBalance - 10);
+    expect(postStoneBalance).to.equal(preStoneBalance - 5);
+    expect(result).to.equal(1);
+  });
+
 
 });

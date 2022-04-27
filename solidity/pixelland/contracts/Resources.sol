@@ -2,10 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "./Pixel.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Resources is ERC1155 {
-
     IERC20 public pixel;
 
     uint256 public constant WOOD = 0;
@@ -17,12 +16,43 @@ contract Resources is ERC1155 {
 
 
     constructor(address _pixel) ERC1155("Pixelland Resources") {
-        _mint(address(this), WOOD, 10**12, "");
-        _mint(address(this), STONE, 10**6, "");
-        _mint(address(this), FOOD, 10**10, "");
-        _mint(address(this), HEALTH_POTIONS, 10**5, "");
-        _mint(address(this), STAMINA_POTIONS, 10**5, "");
-        _mint(address(this), SKELETON_BONES, 10**9, ""); 
+        _mint(msg.sender, WOOD, 10**12, "");
+        _mint(msg.sender, STONE, 10**6, "");
+        _mint(msg.sender, FOOD, 10**10, "");
+        _mint(msg.sender, HEALTH_POTIONS, 10**5, "");
+        _mint(msg.sender, STAMINA_POTIONS, 10**5, "");
+        _mint(msg.sender, SKELETON_BONES, 10**9, "");
         pixel = IERC20(_pixel);
+    }
+
+    function chopWood(uint amount) public {
+        _mint(msg.sender, WOOD, amount, "");
+    }
+    function mineStone(uint amount) public {
+        _mint(msg.sender, STONE, amount, "");
+    }
+    function harvestFood(uint amount) public {
+        _mint(msg.sender, FOOD, amount, "");
+    }
+    function lootSkeleton(uint amount) public {
+        _mint(msg.sender, SKELETON_BONES, amount, ""); 
+    }
+
+    ///Health Potion = 10 food, 5 stone
+    function makeHealthPotion(uint amount) public {
+        uint amountFood = amount * 10;
+        uint amountStone = amount * 5;
+        _burn(msg.sender, FOOD, amountFood);
+        _burn(msg.sender, STONE, amountStone);
+        _mint(msg.sender, HEALTH_POTIONS, amount, "");
+    }
+
+    ///Stamina Potion = 10 food, 5 wood
+    function makeStaminaPotion(uint amount) public {
+        uint amountFood = amount * 10;
+        uint amountWood = amount * 5;
+        _burn(msg.sender, FOOD, amountFood);
+        _burn(msg.sender, STONE, amountWood);
+        _mint(msg.sender, STAMINA_POTIONS, amount, "");
     }
 }
