@@ -1,0 +1,162 @@
+@font-face { font-family: VCR; src: url('VCR.ttf'); } 
+
+.App {
+  text-align: center;
+  background-color: rgb(0, 0, 0);
+  color: brown;
+  padding:  1em;
+  border-style: solid;
+  border-color: greenyellow;
+  border-width: 3px;
+  width: 1200px;
+  height: 90%;
+  font-family: 'VCR';
+  font-size: medium;
+}
+.Container {
+  display: flex;
+  flex-direction: column;
+  background-color: bisque;
+  width: 100%;
+  height: 80%;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  margin: 5px;
+  padding: 5px;
+}
+.profilePic {
+  height: 150px;
+  width: 135px;
+  border-style: solid;
+  border-width: 2px;
+  border-color: brown;
+}
+.rowSpecial {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  justify-items: center;
+  flex-direction: row;
+}
+.crafting {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: aliceblue;
+  border-style: solid;
+  border-width: 2px;
+  border-color: brown;
+}
+.inventory {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  border-style: solid;
+  border-width: 2px;
+  border-color: brown;
+}
+.recipeIcon {
+  width: 40px;
+  height: 40px;
+  margin: 5px;
+  padding: 5px;
+}
+.centerpic {
+  width: 60px;
+  height: 65px;
+  
+}
+.row {
+  display: flex;
+  flex-direction: row;
+}
+.title {
+  width: 100%;
+}
+.rowOfThree {
+  display: flex;
+  flex-direction: row;
+}
+.profile {
+  display: flex;
+  flex-direction: column;
+  background-color: beige;
+  width: 100%;
+  border-style: solid;
+  border-width: 2px;
+  border-color: brown;
+}
+.Main{
+  text-align: center;
+  background-color: greenyellow;
+  color: black;
+  border-radius: 10px;
+  padding: 1em;
+}
+.InfoBox {
+  text-align: left;
+  color: greenyellow;
+  background-color: black;
+  border-color: black;
+  border-width: 2px;
+  border-style: solid;
+  padding: 0;
+}
+
+button{
+  color: greenyellow;
+  background-color: black;
+  border-radius: 5px;
+  
+}
+
+.App-logo {
+  height: 40vmin;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #09d3ac;
+}
+
+.cookbook {
+  overflow-y: auto;
+}
+@media screen and (max-width: 600px) {
+  .App {
+  width: 100%;
+  }
+  }
+
+body{
+  background-color: silver;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1em;
+}
+
+@media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+  .App{
+    width: 100%;
+  }
+  .container{
+    width: 100%;
+  }
+  p{
+    font-size: small;
+  }
+  }
